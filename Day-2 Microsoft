@@ -1,0 +1,1067 @@
+1. Circle and Rectangle Overlapping
+You are given a circle represented as (radius, xCenter, yCenter) and an axis-aligned rectangle represented as (x1, y1, x2, y2), where (x1, y1) are the coordinates of the bottom-left corner, and (x2, y2) are the coordinates of the top-right corner of the rectangle.
+
+Return true if the circle and rectangle are overlapped otherwise return false. In other words, check if there is any point (xi, yi) that belongs to the circle and the rectangle at the same time.
+
+ 
+
+Example 1:
+
+
+Input: radius = 1, xCenter = 0, yCenter = 0, x1 = 1, y1 = -1, x2 = 3, y2 = 1
+Output: true
+Explanation: Circle and rectangle share the point (1,0).
+Example 2:
+
+Input: radius = 1, xCenter = 1, yCenter = 1, x1 = 1, y1 = -3, x2 = 2, y2 = -1
+Output: false
+Example 3:
+
+
+Input: radius = 1, xCenter = 0, yCenter = 0, x1 = -1, y1 = 0, x2 = 0, y2 = 1
+Output: true
+ 
+
+Constraints:
+
+1 <= radius <= 2000
+-104 <= xCenter, yCenter <= 104
+-104 <= x1 < x2 <= 104
+-104 <= y1 < y2 <= 104
+*****************************************************************************************
+--------------------------------SOLUTION-------------------------------------------------
+class Solution {
+    
+    int shortest_coor(int radius, int xCenter, int x1, int x2) {
+        
+        if (x1 <= xCenter and xCenter <= x2)
+            return 0;
+        
+        int px = 0;
+        if (xCenter + radius <= x1) {
+            px = abs(x1 - xCenter);
+        } else if (xCenter - radius >= x2) {
+            px = abs(x2 - xCenter);
+        } else {
+            px = min(abs(x1 - xCenter), abs(x2 - xCenter));
+        }
+        
+        return px;
+    }
+public:
+    bool checkOverlap(int radius, int xCenter, int yCenter, int x1, int y1, int x2, int y2) {
+        
+        int px = shortest_coor(radius, xCenter, x1, x2);
+        int py = shortest_coor(radius, yCenter, y1, y2);
+        
+        int dis = pow(px, 2) + pow(py, 2);
+        int r_square = pow(radius, 2);
+        return dis <= r_square;
+        
+    }
+};
+--------------------------------------------------------------------------
+**************************************************************************
+2. Find the Winner of the Circular Game
+There are n friends that are playing a game. The friends are sitting in a circle and are numbered from 1 to n in clockwise order. More formally, moving clockwise from the ith friend brings you to the (i+1)th friend for 1 <= i < n, and moving clockwise from the nth friend brings you to the 1st friend.
+
+The rules of the game are as follows:
+
+Start at the 1st friend.
+Count the next k friends in the clockwise direction including the friend you started at. The counting wraps around the circle and may count some friends more than once.
+The last friend you counted leaves the circle and loses the game.
+If there is still more than one friend in the circle, go back to step 2 starting from the friend immediately clockwise of the friend who just lost and repeat.
+Else, the last friend in the circle wins the game.
+Given the number of friends, n, and an integer k, return the winner of the game.
+
+ 
+
+Example 1:
+
+
+Input: n = 5, k = 2
+Output: 3
+Explanation: Here are the steps of the game:
+1) Start at friend 1.
+2) Count 2 friends clockwise, which are friends 1 and 2.
+3) Friend 2 leaves the circle. Next start is friend 3.
+4) Count 2 friends clockwise, which are friends 3 and 4.
+5) Friend 4 leaves the circle. Next start is friend 5.
+6) Count 2 friends clockwise, which are friends 5 and 1.
+7) Friend 1 leaves the circle. Next start is friend 3.
+8) Count 2 friends clockwise, which are friends 3 and 5.
+9) Friend 5 leaves the circle. Only friend 3 is left, so they are the winner.
+Example 2:
+
+Input: n = 6, k = 5
+Output: 1
+Explanation: The friends leave in this order: 5, 4, 6, 2, 3. The winner is friend 1.
+ 
+
+Constraints:
+
+1 <= k <= n <= 500
+*************************************************************************************
+----------------------------------------SOLUTION-------------------------------------
+class Solution {
+public:
+    int helper(ListNode *head,int k){
+        ListNode *temp=head;  //For traversing through the List and delete every kth Node 
+        while(head->next!=head){   //Till the last Node remains in the list i.e. the winner
+            ListNode *pre=NULL;
+            for(int i=1; i<k; i++){
+                pre=temp;
+                temp=temp->next;
+            }
+            //Deletion procedure
+            if(temp==head)
+                head=head->next;
+            pre->next=temp->next;
+            delete(temp);
+            temp=pre->next;
+        }
+        //The last node remaining becomes the head of the Circular Linked List i.e. Winner
+        return head->val;
+    }
+    int findTheWinner(int n, int k) {
+        if(k==1)
+            return n;
+        //Designing Circular Linked List for Node 1,2,3,4,.....,n
+        ListNode *head=NULL,*tail=NULL;
+        for(int i=1; i<=n; i++){
+            ListNode *node=new ListNode(i);
+            if(head==NULL)
+                head=tail=node;
+            else{
+                tail->next=node;
+                tail=node;
+            }
+            tail->next=head;
+        }
+        //Helper function will eliminate the nodes and give us the winner
+        return helper(head,k);
+    }
+};
+-------------------------------------------------------------------------------------------------
+**************************************************************************************************
+3. Russian Doll Envelopes
+You are given a 2D array of integers envelopes where envelopes[i] = [wi, hi] represents the width and the height of an envelope.
+
+One envelope can fit into another if and only if both the width and height of one envelope are greater than the other envelope's width and height.
+
+Return the maximum number of envelopes you can Russian doll (i.e., put one inside the other).
+
+Note: You cannot rotate an envelope.
+
+ 
+
+Example 1:
+
+Input: envelopes = [[5,4],[6,4],[6,7],[2,3]]
+Output: 3
+Explanation: The maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+Example 2:
+
+Input: envelopes = [[1,1],[1,1],[1,1]]
+Output: 1
+ 
+
+Constraints:
+
+1 <= envelopes.length <= 105
+envelopes[i].length == 2
+1 <= wi, hi <= 105
+**********************************************************************************************
+--------------------------------------SOLUTION------------------------------------------------
+class Solution {
+    static bool cmp(vector<int> &a, vector<int> &b) {
+        return a[0] == b[0] ? a[1] > b[1] : a[0] < b[0];
+    }
+public:
+    int maxEnvelopes(vector<vector<int>>& envelopes) {
+        sort(envelopes.begin(), envelopes.end(), cmp);
+
+        vector<int> v;
+        for(auto e : envelopes) {
+            if(!v.size() || v.back() < e[1]) v.push_back(e[1]);
+            else {
+                int pos = lower_bound(v.begin(), v.end(), e[1]) - v.begin();
+                v[pos] = e[1];
+            }
+        }
+        return v.size();
+    }
+};
+
+---------------------------------------------------------------------------------------------
+*********************************************************************************************
+4. Image Smoother 
+An image smoother is a filter of the size 3 x 3 that can be applied to each cell of an image by rounding down the average of the cell and the eight surrounding cells (i.e., the average of the nine cells in the blue smoother). If one or more of the surrounding cells of a cell is not present, we do not consider it in the average (i.e., the average of the four cells in the red smoother).
+
+
+Given an m x n integer matrix img representing the grayscale of an image, return the image after applying the smoother on each cell of it.
+
+ 
+
+Example 1:
+
+
+Input: img = [[1,1,1],[1,0,1],[1,1,1]]
+Output: [[0,0,0],[0,0,0],[0,0,0]]
+Explanation:
+For the points (0,0), (0,2), (2,0), (2,2): floor(3/4) = floor(0.75) = 0
+For the points (0,1), (1,0), (1,2), (2,1): floor(5/6) = floor(0.83333333) = 0
+For the point (1,1): floor(8/9) = floor(0.88888889) = 0
+Example 2:
+
+
+Input: img = [[100,200,100],[200,50,200],[100,200,100]]
+Output: [[137,141,137],[141,138,141],[137,141,137]]
+Explanation:
+For the points (0,0), (0,2), (2,0), (2,2): floor((100+200+200+50)/4) = floor(137.5) = 137
+For the points (0,1), (1,0), (1,2), (2,1): floor((200+200+50+200+100+100)/6) = floor(141.666667) = 141
+For the point (1,1): floor((50+200+200+200+200+100+100+100+100)/9) = floor(138.888889) = 138
+ 
+
+Constraints:
+
+m == img.length
+n == img[i].length
+1 <= m, n <= 200
+0 <= img[i][j] <= 255
+**********************************************************************************************************
+--------------------------------------------------SOLUTION------------------------------------------------
+class Solution {
+public:
+    vector<vector<int>> imageSmoother(vector<vector<int>>& a) {
+        int i,j,c=0,s=0;
+        int n=a.size();
+        int m = a[0].size();
+        vector<vector<int>>ans(n,vector<int>(m,0));
+
+        for(i=0;i<n;i++){
+            
+            for(j=0;j<m;j++){
+                c=0;
+                s=0;
+
+                int x1,y1,x2,y2;
+                x1=i-1>=0?i-1:0;
+                x2=i+1<n?i+1:n-1;
+                y1=j-1>=0?j-1:0;
+                y2=j+1<m?j+1:m-1;
+
+                for(int x=x1;x<=x2;x++){
+                    for(int y=y1;y<=y2;y++){
+                        c+=a[x][y];
+                        s++;
+                    }
+                }
+                
+            ans[i][j]=c/s;
+                
+            }
+        }
+
+        return ans;
+    }
+};
+*********************************************************************************
+---------------------------------------------------------------------------------
+5. Minimum Moves to Equal Array Elements II
+Given an integer array nums of size n, return the minimum number of moves required to make all array elements equal.
+
+In one move, you can increment or decrement an element of the array by 1.
+
+Test cases are designed so that the answer will fit in a 32-bit integer.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3]
+Output: 2
+Explanation:
+Only two moves are needed (remember each move increments or decrements one element):
+[1,2,3]  =>  [2,2,3]  =>  [2,2,2]
+Example 2:
+
+Input: nums = [1,10,2,9]
+Output: 16
+ 
+
+Constraints:
+
+n == nums.length
+1 <= nums.length <= 105
+-109 <= nums[i] <= 109
+******************************************************************************************
+-----------------------------------------SOLUTION-----------------------------------------
+class Solution {
+public:
+    int minMoves2(vector<int>& nums) {
+        sort(nums.begin(),nums.end());
+        
+        int n = nums.size();
+        int median = n/2;
+        
+        int moves = 0;
+        
+        for(int i=0;i<n;i++)
+        {
+            moves += abs(nums[i]-nums[median]);
+        }
+        
+        return moves;
+    }
+};
+*********************************************************************************************
+---------------------------------------------------------------------------------------------
+6. Random Point in Non-overlapping Rectangles
+You are given an array of non-overlapping axis-aligned rectangles rects where rects[i] = [ai, bi, xi, yi] indicates that (ai, bi) is the bottom-left corner point of the ith rectangle and (xi, yi) is the top-right corner point of the ith rectangle. Design an algorithm to pick a random integer point inside the space covered by one of the given rectangles. A point on the perimeter of a rectangle is included in the space covered by the rectangle.
+
+Any integer point inside the space covered by one of the given rectangles should be equally likely to be returned.
+
+Note that an integer point is a point that has integer coordinates.
+
+Implement the Solution class:
+
+Solution(int[][] rects) Initializes the object with the given rectangles rects.
+int[] pick() Returns a random integer point [u, v] inside the space covered by one of the given rectangles.
+ 
+
+Example 1:
+
+
+Input
+["Solution", "pick", "pick", "pick", "pick", "pick"]
+[[[[-2, -2, 1, 1], [2, 2, 4, 6]]], [], [], [], [], []]
+Output
+[null, [1, -2], [1, -1], [-1, -2], [-2, -2], [0, 0]]
+
+Explanation
+Solution solution = new Solution([[-2, -2, 1, 1], [2, 2, 4, 6]]);
+solution.pick(); // return [1, -2]
+solution.pick(); // return [1, -1]
+solution.pick(); // return [-1, -2]
+solution.pick(); // return [-2, -2]
+solution.pick(); // return [0, 0]
+ 
+
+Constraints:
+
+1 <= rects.length <= 100
+rects[i].length == 4
+-109 <= ai < xi <= 109
+-109 <= bi < yi <= 109
+xi - ai <= 2000
+yi - bi <= 2000
+All the rectangles do not overlap.
+At most 104 calls will be made to pick.
+*********************************************************************************
+----------------------------------SOLUTION---------------------------------------
+class Solution {
+public:
+    vector<vector<int>> rects;
+    
+    Solution(vector<vector<int>> rects) : rects(rects) {
+    }
+    
+    vector<int> pick() {
+        int sum_area = 0;
+        vector<int> selected;
+        
+        /* Step 1 - select a random rectangle considering the area of it. */
+        for (auto r : rects) {
+            /*
+             * What we need to be aware of here is that the input may contain
+             * lines that are not rectangles. For example, [1, 2, 1, 5], [3, 2, 3, -2].
+             * 
+             * So, we work around it by adding +1 here. It does not affect
+             * the final result of reservoir sampling.
+             */
+            int area = (r[2] - r[0] + 1) * (r[3] - r[1] + 1);
+            sum_area += area;
+            
+            if (rand() % sum_area < area)
+                selected = r;
+        }
+        
+        /* Step 2 - select a random (x, y) coordinate within the selected rectangle. */
+        int x = rand() % (selected[2] - selected[0] + 1) + selected[0];
+        int y = rand() % (selected[3] - selected[1] + 1) + selected[1];
+        
+        return { x, y };
+    }
+};
+************************************************************************************************
+------------------------------------------------------------------------------------------------
+7. Bulls and Cows
+You are playing the Bulls and Cows game with your friend.
+
+You write down a secret number and ask your friend to guess what the number is. When your friend makes a guess, you provide a hint with the following info:
+
+The number of "bulls", which are digits in the guess that are in the correct position.
+The number of "cows", which are digits in the guess that are in your secret number but are located in the wrong position. Specifically, the non-bull digits in the guess that could be rearranged such that they become bulls.
+Given the secret number secret and your friend's guess guess, return the hint for your friend's guess.
+
+The hint should be formatted as "xAyB", where x is the number of bulls and y is the number of cows. Note that both secret and guess may contain duplicate digits.
+
+ 
+
+Example 1:
+
+Input: secret = "1807", guess = "7810"
+Output: "1A3B"
+Explanation: Bulls are connected with a '|' and cows are underlined:
+"1807"
+  |
+"7810"
+Example 2:
+
+Input: secret = "1123", guess = "0111"
+Output: "1A1B"
+Explanation: Bulls are connected with a '|' and cows are underlined:
+"1123"        "1123"
+  |      or     |
+"0111"        "0111"
+Note that only one of the two unmatched 1s is counted as a cow since the non-bull digits can only be rearranged to allow one 1 to be a bull.
+ 
+
+Constraints:
+
+1 <= secret.length, guess.length <= 1000
+secret.length == guess.length
+secret and guess consist of digits only.
+****************************************************************************************************************
+-----------------------------------------------------SOLUTION---------------------------------------------------
+class Solution {
+public:
+    string getHint(string secret, string guess) {
+        vector<int> cowsS(10, 0);
+        vector<int> cowsG(10, 0);
+
+        int bulls{0}, cows{0};
+        for (int i{0}; i<secret.size(); ++i) {
+            // if the numbers in the positions match then it's a bull
+            if (secret[i]==guess[i]) bulls++;
+            else {
+                // we add bulls corresponding to the numbers (eg, if secret[i]=5)
+                // ascii of 5 is 53 and ascii of 0 is 48 and therefore 53-48 = 5 which is the poition given in secret[i]
+                cowsS[secret[i]-'0']++;
+                cowsG[guess[i]-'0']++;
+            }
+        }
+
+        for (int i{0}; i<cowsG.size(); ++i) {
+            // let's day cowsS[4]=5, it means that '4' is present 5 times in secret
+            // same goes for cowsS. The minimum of either gives the number of matches (the extra ones can't match)
+            cows+=min(cowsG[i], cowsS[i]);
+        }
+
+        // to_string converts ascii to integer. (eg., '5' to 5)
+        return to_string(bulls)+'A'+to_string(cows)+'B';
+
+    }
+};
+***************************************************************************************************************
+---------------------------------------------------------------------------------------------------------------
+8. Count Number of Nice Subarrays
+Given an array of integers nums and an integer k. A continuous subarray is called nice if there are k odd numbers on it.
+
+Return the number of nice sub-arrays.
+
+ 
+
+Example 1:
+
+Input: nums = [1,1,2,1,1], k = 3
+Output: 2
+Explanation: The only sub-arrays with 3 odd numbers are [1,1,2,1] and [1,2,1,1].
+Example 2:
+
+Input: nums = [2,4,6], k = 1
+Output: 0
+Explanation: There is no odd numbers in the array.
+Example 3:
+
+Input: nums = [2,2,2,1,2,2,1,2,2,2], k = 2
+Output: 16
+ 
+
+Constraints:
+
+1 <= nums.length <= 50000
+1 <= nums[i] <= 10^5
+1 <= k <= nums.length
+*******************************************************************************************
+---------------------------------------------SOLUTION--------------------------------------
+class Solution {
+public:
+    int atMost(vector<int>& nums, int k)
+    {
+        int left = 0;
+        int right = 0;
+        int ans = 0;
+
+        for(right = 0; right < nums.size(); right++)
+        {
+            k -= nums[right];
+            while(k < 0)
+            {
+                k += nums[left];
+                left++;
+            }
+            ans += right - left + 1;
+        }
+        return ans;
+    }
+    int numberOfSubarrays(vector<int>& nums, int k) {
+        for(int i = 0; i < nums.size(); i++)
+        {
+            if(nums[i] % 2 == 1) nums[i] = 1;
+            else nums[i] = 0;
+        }
+        return atMost(nums, k) - atMost(nums, k - 1);
+    }
+};
+***************************************************************************
+---------------------------------------------------------------------------
+9. Repeated DNA Sequences
+The DNA sequence is composed of a series of nucleotides abbreviated as 'A', 'C', 'G', and 'T'.
+
+For example, "ACGAATTCCG" is a DNA sequence.
+When studying DNA, it is useful to identify repeated sequences within the DNA.
+
+Given a string s that represents a DNA sequence, return all the 10-letter-long sequences (substrings) that occur more than once in a DNA molecule. You may return the answer in any order.
+
+ 
+
+Example 1:
+
+Input: s = "AAAAACCCCCAAAAACCCCCCAAAAAGGGTTT"
+Output: ["AAAAACCCCC","CCCCCAAAAA"]
+Example 2:
+
+Input: s = "AAAAAAAAAAAAA"
+Output: ["AAAAAAAAAA"]
+ 
+
+Constraints:
+
+1 <= s.length <= 105
+s[i] is either 'A', 'C', 'G', or 'T'.
+******************************************************************************************************************
+----------------------------------------------------SOLUTION------------------------------------------------------
+class Solution {
+public:
+    vector<string> findRepeatedDnaSequences(string s) {
+        int n = s.length();
+        vector <string> ans;
+        if(n < 10){
+            return ans;
+        }
+        unordered_map <string,int> ump;
+        for(int i=0;i<s.size()-9;i++){
+        string t = s.substr(i,10);
+        ump[t]++;
+        }
+        
+        for(auto it : ump){
+            if(it.second > 1){
+                ans.push_back(it.first);
+            }
+        }
+        
+        return ans;
+    }
+};
+******************************************************************************************************************
+------------------------------------------------------------------------------------------------------------------
+10. Find the City With the Smallest Number of Neighbors at a Threshold Distance
+There are n cities numbered from 0 to n-1. Given the array edges where edges[i] = [fromi, toi, weighti] represents a bidirectional and weighted edge between cities fromi and toi, and given the integer distanceThreshold.
+
+Return the city with the smallest number of cities that are reachable through some path and whose distance is at most distanceThreshold, If there are multiple such cities, return the city with the greatest number.
+
+Notice that the distance of a path connecting cities i and j is equal to the sum of the edges' weights along that path.
+
+ 
+
+Example 1:
+
+
+Input: n = 4, edges = [[0,1,3],[1,2,1],[1,3,4],[2,3,1]], distanceThreshold = 4
+Output: 3
+Explanation: The figure above describes the graph. 
+The neighboring cities at a distanceThreshold = 4 for each city are:
+City 0 -> [City 1, City 2] 
+City 1 -> [City 0, City 2, City 3] 
+City 2 -> [City 0, City 1, City 3] 
+City 3 -> [City 1, City 2] 
+Cities 0 and 3 have 2 neighboring cities at a distanceThreshold = 4, but we have to return city 3 since it has the greatest number.
+Example 2:
+
+
+Input: n = 5, edges = [[0,1,2],[0,4,8],[1,2,3],[1,4,2],[2,3,1],[3,4,1]], distanceThreshold = 2
+Output: 0
+Explanation: The figure above describes the graph. 
+The neighboring cities at a distanceThreshold = 2 for each city are:
+City 0 -> [City 1] 
+City 1 -> [City 0, City 4] 
+City 2 -> [City 3, City 4] 
+City 3 -> [City 2, City 4]
+City 4 -> [City 1, City 2, City 3] 
+The city 0 has 1 neighboring city at a distanceThreshold = 2.
+ 
+
+Constraints:
+
+2 <= n <= 100
+1 <= edges.length <= n * (n - 1) / 2
+edges[i].length == 3
+0 <= fromi < toi < n
+1 <= weighti, distanceThreshold <= 10^4
+All pairs (fromi, toi) are distinct.
+****************************************************************************************************************
+-------------------------------------------------------------SOLUTION-------------------------------------------
+class Solution {
+public:
+    unordered_map<int, vector<pair<int, int>>> hash;
+    int findTheCity(int n, vector<vector<int>>& edges, int distanceThreshold) {
+        for(auto& a: edges){
+            hash[a[0]].push_back({a[1], a[2]});
+            hash[a[1]].push_back({a[0], a[2]});
+        }
+        int result = 1e9, ans = -1;
+        for(int i = 0; i < n; i++){
+            int found = dijkstra(i, n, distanceThreshold);
+            if(found <= result)
+                result = found, ans = i;
+        }
+        return ans;
+    }
+    int dijkstra(int& i, int& n, int& dt){
+        vector<int> dist(n, INT_MAX);
+        dist[i] = 0;
+        priority_queue<pair<int, int>> pq;
+        pq.push({0, i});
+        while(!pq.empty()){
+            auto [cost, node] = pq.top();
+            pq.pop();
+            for(auto& a: hash[node]){
+                int b = cost + a.second;
+                if(dist[a.first] > b){
+                    dist[a.first] = b;
+                    pq.push({b, a.first});
+                }
+            }
+        }
+        int count = 0;
+        for(int j = 0; j < n; j++)
+            count += dist[j] <= dt;
+        return count;
+    }
+};
+*************************************************************************************************
+-------------------------------------------------------------------------------------------------
+11. Count the Number of Incremovable Subarrays I
+You are given a 0-indexed array of positive integers nums.
+
+A subarray of nums is called incremovable if nums becomes strictly increasing on removing the subarray. For example, the subarray [3, 4] is an incremovable subarray of [5, 3, 4, 6, 7] because removing this subarray changes the array [5, 3, 4, 6, 7] to [5, 6, 7] which is strictly increasing.
+
+Return the total number of incremovable subarrays of nums.
+
+Note that an empty array is considered strictly increasing.
+
+A subarray is a contiguous non-empty sequence of elements within an array.
+
+ 
+
+Example 1:
+
+Input: nums = [1,2,3,4]
+Output: 10
+Explanation: The 10 incremovable subarrays are: [1], [2], [3], [4], [1,2], [2,3], [3,4], [1,2,3], [2,3,4], and [1,2,3,4], because on removing any one of these subarrays nums becomes strictly increasing. Note that you cannot select an empty subarray.
+Example 2:
+
+Input: nums = [6,5,7,8]
+Output: 7
+Explanation: The 7 incremovable subarrays are: [5], [6], [5,7], [6,5], [5,7,8], [6,5,7] and [6,5,7,8].
+It can be shown that there are only 7 incremovable subarrays in nums.
+Example 3:
+
+Input: nums = [8,7,6,6]
+Output: 3
+Explanation: The 3 incremovable subarrays are: [8,7,6], [7,6,6], and [8,7,6,6]. Note that [8,7] is not an incremovable subarray because after removing [8,7] nums becomes [6,6], which is sorted in ascending order but not strictly increasing.
+ 
+
+Constraints:
+
+1 <= nums.length <= 50
+1 <= nums[i] <= 50
+***************************************************************************************************
+-------------------------------------------------SOLUTION------------------------------------------
+
+class Solution {
+public:
+    long long incremovableSubarrayCount(vector<int>& nums) {
+     long long int i,j,k,n=nums.size(),indl=-1,inds=-1,cnt,l,r;
+        cnt=0;
+        for(i=0;i<n-1;i++){
+            if(nums[i]<nums[i+1]){
+                cnt++;
+            }
+        }
+        if(cnt==n-1){
+            return (n*(n+1))/2;
+        }
+
+        cnt=0; 
+        for(i=n-2;i>=0;i--){
+            if(nums[i]>=nums[i+1]){
+                indl=i;
+                break;
+            }
+        }
+        cnt=n-indl; //if we start removing from the first element 
+        i=0; j=indl+1; 
+        while(i<n ||  j<n ){
+            if(i>0 && nums[i]<=nums[i-1]){ //if so then we can not remove subarray from starting
+                break;
+            }
+            while(j<n && nums[i]>=nums[j]){ //we are doing this to remove the middle subarray
+                j++;
+            }
+            if(j<n && nums[i]<nums[j]){
+                cnt+=(n-j+1);  //this subarray we will remove
+            }
+            else if(j>=n && i<n){
+                cnt+=(n-j+1);  //we are removing subarray from the end side
+            }
+            i++;
+        }
+        return cnt;  
+    }
+};
+****************************************************************************************************
+----------------------------------------------------------------------------------------------------
+12. Maximum Product of the Length of Two Palindromic Subsequences
+Given a string s, find two disjoint palindromic subsequences of s such that the product of their lengths is maximized. The two subsequences are disjoint if they do not both pick a character at the same index.
+
+Return the maximum possible product of the lengths of the two palindromic subsequences.
+
+A subsequence is a string that can be derived from another string by deleting some or no characters without changing the order of the remaining characters. A string is palindromic if it reads the same forward and backward.
+
+ 
+
+Example 1:
+
+example-1
+Input: s = "leetcodecom"
+Output: 9
+Explanation: An optimal solution is to choose "ete" for the 1st subsequence and "cdc" for the 2nd subsequence.
+The product of their lengths is: 3 * 3 = 9.
+Example 2:
+
+Input: s = "bb"
+Output: 1
+Explanation: An optimal solution is to choose "b" (the first character) for the 1st subsequence and "b" (the second character) for the 2nd subsequence.
+The product of their lengths is: 1 * 1 = 1.
+Example 3:
+
+Input: s = "accbcaxxcxx"
+Output: 25
+Explanation: An optimal solution is to choose "accca" for the 1st subsequence and "xxcxx" for the 2nd subsequence.
+The product of their lengths is: 5 * 5 = 25.
+ 
+
+Constraints:
+
+2 <= s.length <= 12
+s consists of lowercase English letters only.
+********************************************************************************************************************
+-----------------------------------------------------SOLUTION-------------------------------------------------------
+class Solution {
+public:
+    int lps(string &s)
+    {
+        int n=s.size();
+        string s1=s;
+        string s2=s;
+        reverse(s2.begin(),s2.end());
+        int dp[s.size()+1][s.size()+1];
+        memset(dp,0,sizeof(dp));
+        for(int i=1;i<=n;i++)
+        {
+            for(int j=1;j<=n;j++)
+            {
+                dp[i][j]=(s1[i-1]==s2[j-1])?1+dp[i-1][j-1]:max(dp[i][j-1],dp[i-1][j]);
+            }
+        }
+        return dp[n][n];
+    }
+    int maxProduct(string s) 
+    {
+        int ans=0;
+        int n=s.size();
+        for(int i=1;i<(1<<n)-1;i++)
+        {
+            string s1="",s2="";
+            for(int j=0;j<n;j++)
+            {
+                if(i&(1<<j))
+                {
+                    s1.push_back(s[j]);
+                }
+                else
+                {
+                    s2.push_back(s[j]);
+                }
+            }
+            ans=max(ans,lps(s1)*lps(s2));
+        }
+        return ans;
+    }
+    
+};
+***********************************************************************************************
+-----------------------------------------------------------------------------------------------
+13. Wiggle Sort II
+Given an integer array nums, reorder it such that nums[0] < nums[1] > nums[2] < nums[3]....
+
+You may assume the input array always has a valid answer.
+
+ 
+
+Example 1:
+
+Input: nums = [1,5,1,1,6,4]
+Output: [1,6,1,5,1,4]
+Explanation: [1,4,1,5,1,6] is also accepted.
+Example 2:
+
+Input: nums = [1,3,2,2,3,1]
+Output: [2,3,1,3,1,2]
+ 
+
+Constraints:
+
+1 <= nums.length <= 5 * 104
+0 <= nums[i] <= 5000
+It is guaranteed that there will be an answer for the given input nums.
+ 
+
+Follow Up: Can you do it in O(n) time and/or in-place with O(1) extra space?
+************************************************************************************************************************
+-------------------------------------------------------------SOLUTION---------------------------------------------------
+class Solution {
+public:
+    void wiggleSort(vector<int>& nums) {
+       int n=nums.size();
+       //max heap
+       priority_queue<int>pq;
+       for(int x:nums) pq.push(x);
+       //put the top large values in odd positions
+       //ex-> [1,5,1,1,6,4]------>[_6_5_4_]
+       int i=1;
+       while(pq.size() and i<n){
+           nums[i]=pq.top();
+           pq.pop();
+           i+=2;
+       }
+       //put remaining values in even position
+       //[1,6,5,1,4,1] 
+       int j=0;
+       while(pq.size() and j<n){
+           nums[j]=pq.top();
+           pq.pop();
+           j+=2;
+       }
+     //upvote if u like the solution 
+    }
+};
+*********************************************************************************************
+---------------------------------------------------------------------------------------------
+14. Shopping Offers
+In LeetCode Store, there are n items to sell. Each item has a price. However, there are some special offers, and a special offer consists of one or more different kinds of items with a sale price.
+
+You are given an integer array price where price[i] is the price of the ith item, and an integer array needs where needs[i] is the number of pieces of the ith item you want to buy.
+
+You are also given an array special where special[i] is of size n + 1 where special[i][j] is the number of pieces of the jth item in the ith offer and special[i][n] (i.e., the last integer in the array) is the price of the ith offer.
+
+Return the lowest price you have to pay for exactly certain items as given, where you could make optimal use of the special offers. You are not allowed to buy more items than you want, even if that would lower the overall price. You could use any of the special offers as many times as you want.
+
+ 
+
+Example 1:
+
+Input: price = [2,5], special = [[3,0,5],[1,2,10]], needs = [3,2]
+Output: 14
+Explanation: There are two kinds of items, A and B. Their prices are $2 and $5 respectively. 
+In special offer 1, you can pay $5 for 3A and 0B
+In special offer 2, you can pay $10 for 1A and 2B. 
+You need to buy 3A and 2B, so you may pay $10 for 1A and 2B (special offer #2), and $4 for 2A.
+Example 2:
+
+Input: price = [2,3,4], special = [[1,1,0,4],[2,2,1,9]], needs = [1,2,1]
+Output: 11
+Explanation: The price of A is $2, and $3 for B, $4 for C. 
+You may pay $4 for 1A and 1B, and $9 for 2A ,2B and 1C. 
+You need to buy 1A ,2B and 1C, so you may pay $4 for 1A and 1B (special offer #1), and $3 for 1B, $4 for 1C. 
+You cannot add more items, though only $9 for 2A ,2B and 1C.
+ 
+
+Constraints:
+
+n == price.length == needs.length
+1 <= n <= 6
+0 <= price[i], needs[i] <= 10
+1 <= special.length <= 100
+special[i].length == n + 1
+0 <= special[i][j] <= 50
+****************************************************************************************************
+------------------------------------------------------SOLUTION--------------------------------------
+class Solution {
+private:
+    int ex(int ind, vector<int> ds, vector<int> &price, vector<vector<int>> &offer, vector<int> &need,  map<int,map<vector<int>,int>> &dp){
+        if(ind==offer.size()){
+            int tot=0;
+            for(int i=0; i<need.size(); i++){
+                tot+=(need[i]-ds[i])*price[i];
+            }
+            return tot;
+        }
+        
+        if(dp.find(ind)!=dp.end() && dp[ind].find(ds)!=dp[ind].end()){
+            return dp[ind][ds];
+        }
+
+        int offer_notTake=ex(ind+1,ds,price,offer,need,dp);
+
+        int offer_take=1e9;
+        vector<int> copyDS=ds;
+
+        for(int i=0; i<need.size(); i++){
+            if(copyDS[i]+offer[ind][i]<=need[i]){
+                copyDS[i]+=offer[ind][i];
+            }else{
+                return dp[ind][ds]=min(offer_notTake,offer_take);
+            }
+        }
+        offer_take=offer[ind][price.size()]+ex(ind,copyDS,price,offer,need,dp);
+
+        return dp[ind][ds]=min(offer_notTake,offer_take); 
+    }
+
+public:
+    int shoppingOffers(vector<int>& price, vector<vector<int>>& offer, vector<int>& need) {
+        map<int,map<vector<int>,int>> dp;
+        vector<int> ds(need.size(),0);
+        return ex(0,ds,price,offer,need,dp);
+    }
+};
+**********************************************************************************************
+----------------------------------------------------------------------------------------------
+15. Minimum Cost to Convert String I
+You are given two 0-indexed strings source and target, both of length n and consisting of lowercase English letters. You are also given two 0-indexed character arrays original and changed, and an integer array cost, where cost[i] represents the cost of changing the character original[i] to the character changed[i].
+
+You start with the string source. In one operation, you can pick a character x from the string and change it to the character y at a cost of z if there exists any index j such that cost[j] == z, original[j] == x, and changed[j] == y.
+
+Return the minimum cost to convert the string source to the string target using any number of operations. If it is impossible to convert source to target, return -1.
+
+Note that there may exist indices i, j such that original[j] == original[i] and changed[j] == changed[i].
+
+ 
+
+Example 1:
+
+Input: source = "abcd", target = "acbe", original = ["a","b","c","c","e","d"], changed = ["b","c","b","e","b","e"], cost = [2,5,5,1,2,20]
+Output: 28
+Explanation: To convert the string "abcd" to string "acbe":
+- Change value at index 1 from 'b' to 'c' at a cost of 5.
+- Change value at index 2 from 'c' to 'e' at a cost of 1.
+- Change value at index 2 from 'e' to 'b' at a cost of 2.
+- Change value at index 3 from 'd' to 'e' at a cost of 20.
+The total cost incurred is 5 + 1 + 2 + 20 = 28.
+It can be shown that this is the minimum possible cost.
+Example 2:
+
+Input: source = "aaaa", target = "bbbb", original = ["a","c"], changed = ["c","b"], cost = [1,2]
+Output: 12
+Explanation: To change the character 'a' to 'b' change the character 'a' to 'c' at a cost of 1, followed by changing the character 'c' to 'b' at a cost of 2, for a total cost of 1 + 2 = 3. To change all occurrences of 'a' to 'b', a total cost of 3 * 4 = 12 is incurred.
+Example 3:
+
+Input: source = "abcd", target = "abce", original = ["a"], changed = ["e"], cost = [10000]
+Output: -1
+Explanation: It is impossible to convert source to target because the value at index 3 cannot be changed from 'd' to 'e'.
+ 
+
+Constraints:
+
+1 <= source.length == target.length <= 105
+source, target consist of lowercase English letters.
+1 <= cost.length == original.length == changed.length <= 2000
+original[i], changed[i] are lowercase English letters.
+1 <= cost[i] <= 106
+original[i] != changed[i]
+***************************************************************************************************************************
+--------------------------------------------------------------------------SOLUTION-----------------------------------------
+class Solution {
+public:
+    long long dijkstra(vector<pair<int,int>>g[],char src,char dest,int n){
+        vector<long long>dis(227,INT_MAX);
+        priority_queue<vector<long long>,vector<vector<long long>>,greater<>>q;        
+        dis[src]=0;
+        q.push({0,src});
+        while(!q.empty()){            
+            auto t=q.top();
+            q.pop(); 
+            if(t[1]==dest)
+                return t[0];
+            
+            for(auto i:g[t[1]]){
+                if(t[0]+i.second<dis[i.first]){
+                    dis[i.first]=t[0]+i.second;
+                    q.push({dis[i.first],i.first});
+                }
+            }
+        }        
+       
+        return -1;
+    }
+    long long minimumCost(string source, string target, vector<char>& original, vector<char>& changed, vector<int>& cost) {
+        int n=cost.size();        
+        vector<pair<int,int>>g[227];
+        for(int i=0;i<n;i++){
+            g[original[i]].push_back({changed[i],cost[i]});
+            // g[changed[i]].push_back({original[i],cost[i]});
+        }
+        long long ans=0LL;
+        map<pair<int,int>,int>m;
+        for(int i=0;i<source.size();i++){
+            if(source[i]==target[i]) continue;
+            long long x=0LL;
+            if(m.count({source[i],target[i]})) 
+                x=m[{source[i],target[i]}];
+            else{
+                 x=dijkstra(g,source[i],target[i],n);
+                m[{source[i],target[i]}]=x;
+            }
+            // cout<<source[i]<<"->"<<target[i]<<" ";
+            // cout<<x<<"\n";
+            if(x==-1) return -1;
+            ans+=x;
+            
+        }
+        return ans;
+        
+        
+    }
+};
+/*
+    Make a directed graph with edges a,b as (original,changed) with weight as cost
+    Use Dijkstra to find shortest path 
+*/
+******************************************************************************************************************
+------------------------------------------------------------------------------------------------------------------
+                              END OF DAY 2
